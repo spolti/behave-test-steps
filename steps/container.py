@@ -43,7 +43,7 @@ class Container(object):
     Object representing a docker test container, it is used in tests
     """
 
-    def __init__(self, image_id, name=None, remove_image=False, output_dir="target/output/", save_output=True, volumes=None, **kwargs):
+    def __init__(self, image_id, name=None, remove_image=False, output_dir="output", save_output=True, volumes=None, **kwargs):
         self.image_id = image_id
         self.container = None
         self.name = name
