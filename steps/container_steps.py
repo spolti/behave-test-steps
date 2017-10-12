@@ -95,6 +95,25 @@ def image(context):
     pass
 
 
+@given(u'container is started with args and env')
+@when(u'container is started with args and env')
+def start_container_with_args_and_env(context, pname="java"):
+    kwargs = {}
+    env = {}
+    for row in context.table:
+        if str(row['arg_env']).startswith('arg'):
+            kwargs[str(row['arg_env']).replace('arg_', '')] = row['value']
+        elif str(row['arg_env']).startswith('env'):
+            env[str(row['arg_env']).replace('env_', '')] = row['value']
+        else:
+            raise Exception("Invalid argument or variable '%s', it should prefixed with 'arg' for arguments or 'env' "
+                            "for variables" % row['arg_env'])
+    container = Container(context.config.userdata['IMAGE'], name=context.scenario.name)
+    container.start(environment=env, **kwargs)
+    context.containers.append(container)
+    wait_for_process(context, pname)
+
+
 @given(u'container is started as uid {uid}')
 @when(u'container is started as uid {uid}')
 @when(u'container is started as uid {uid} with process {pname}')
