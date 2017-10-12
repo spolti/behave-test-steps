@@ -195,7 +195,7 @@ class Container(object):
             retcode = d.exec_inspect(inst)['ExitCode']
             time.sleep(1)
             if count > 15:
-                raise ExecException("Command %s timed out" % cmd, output)
+                raise ExecException("Command %s timed out, output: %s" % (cmd, output))
 
         if retcode is not 0:
             raise ExecException("Command %s failed to execute, return code: %s" % (cmd, retcode), output)
