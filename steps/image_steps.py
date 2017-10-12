@@ -40,6 +40,7 @@ def label_exists(context, label, check="with", value=None):
 
     raise Exception("The %s label does not contain %s value, current value: %s" % (label, value, actual_value))
 
+
 @then(u'image should contain {count} layers')
 def check_layers_count(context, count):
     """

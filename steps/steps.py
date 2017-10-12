@@ -6,21 +6,19 @@ import logging
 import select
 import socket
 import fcntl
-import tempfile
 
-from behave import when, then, given
-from time import sleep
-from container import Container, ExecException
+from behave import then, given
+from container import ExecException
 
-
-LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=LOG_FORMAT)
 if os.environ.get('CTF_WAIT_TIME'):
     TIMEOUT = int(os.environ.get('CTF_WAIT_TIME'))
 else:
     TIMEOUT = 30
 
-def _execute(command, log_output = True):
+
+def _execute(command, log_output=True):
     """
     Helper method to execute a shell command and redirect the logs to logger
     with proper log level.
@@ -30,7 +28,6 @@ def _execute(command, log_output = True):
 
     try:
         proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
 
         levels = {
             proc.stdout: logging.DEBUG,
@@ -52,7 +49,7 @@ def _execute(command, log_output = True):
         if log_output:
             out = ""
 
-            while proc.poll() == None:
+            while proc.poll() is None:
                 readx = select.select([proc.stdout, proc.stderr], [], [])[0]
                 for output in readx:
                     line = output.readline()[:-1]
@@ -65,7 +62,7 @@ def _execute(command, log_output = True):
             logging.error("Command '%s' returned code was %s, check logs" % (command, retcode))
             return False
 
-    except subprocess.CalledProcessError as e:
+    except subprocess.CalledProcessError:
         logging.error("Command '%s' failed, check logs" % command)
         return False
 
@@ -142,16 +139,17 @@ def check_page_is_served(context):
             password = row['value']
     handle_request(context, port, wait, timeout, expected_status_code, path, expected_phrase, username, password)
 
+
 def handle_request(context, port, wait, timeout, expected_status_code, path, expected_phrase, username, password):
     logging.info("Checking if the container is returning status code %s on port %s" % (expected_status_code, port))
-    
+
     start_time = time.time()
     ip = context.containers[-1].ip_address
     latest_status_code = 0
-        
+
     while time.time() < start_time + wait:
         try:
-            response = requests.get('http://%s:%s%s' % (ip, port, path), timeout = timeout, stream=False, auth=(username, password))
+            response = requests.get('http://%s:%s%s' % (ip, port, path), timeout=timeout, stream=False, auth=(username, password))
         except Exception as ex:
             # Logging as warning, bcause this does not neccessarily means
             # something bad. For example the server did not boot yet.
@@ -171,10 +169,11 @@ def handle_request(context, port, wait, timeout, expected_status_code, path, exp
                 else:
                     # The phrase was not found in the response
                     raise Exception("Failure! Correct status code received but the document body does not contain the '%s' phrase!" % expected_phrase,
-                        "Received body:\n%s" % response.text) # XXX: better diagnostics
+                                    "Received body:\n%s" % response.text)  # XXX: better diagnostics
 
         time.sleep(1)
-    raise Exception("handle_request failed", expected_status_code) # XXX: better diagnostics
+    raise Exception("handle_request failed", expected_status_code)  # XXX: better diagnostics
+
 
 @then(u'check that port {port} is open')
 def check_port_open(context, port):
@@ -190,20 +189,21 @@ def check_port_open(context, port):
             s.close()
             return True
         except Exception as ex:
-            logging.debug("not connected yes %s" %ex)
+            logging.debug("not connected yes %s" % ex)
         time.sleep(1)
-    raise Exception("Port %s is not open" %port)
+    raise Exception("Port %s is not open" % port)
+
 
 @then(u'file {file_name} should exist')
 @then(u'file {file_name} should exist and be a {file_type}')
-#TODO: @then(u'file {file_name} should exist and have {permission} permissions')
-def check_file_exists(context, file_name, file_type = None):
+# TODO: @then(u'file {file_name} should exist and have {permission} permissions')
+def check_file_exists(context, file_name, file_type=None):
     container = context.containers[-1]
 
     try:
         container.execute("test -e %s" % file_name)
-    except ExecException as e:
-        logging.error(e.output)
+    except ExecException as ex:
+        logging.error(ex.output)
         raise Exception("File %s does not exist" % file_name)
 
     if file_type:
@@ -222,16 +222,18 @@ def check_file_exists(context, file_name, file_type = None):
 
     return True
 
+
 @then(u'file {file_name} should not exist')
 def check_file_not_exists(context, file_name):
     container = context.containers[-1]
 
     try:
         container.execute("test -e %s" % file_name)
-    except ExecException as e:
+    except:
         return True
 
     raise Exception("File %s exists" % file_name)
+
 
 @then(u'files at {path} should have count of {count}')
 def check_file_count(context, path, count):
@@ -248,8 +250,8 @@ def check_file_count(context, path, count):
 
     return True
 
+
 @given(u'define variable')
 def step_impl(context):
     for row in context.table:
         context.variables[row['variable']] = row['value']
-

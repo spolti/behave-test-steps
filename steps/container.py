@@ -68,7 +68,7 @@ class Container(object):
         except Exception as e:
             self.logging.error("Cannot parse CTF_DOCKER_VOLUME variable %s", e)
 
-        # get env from env (CTF_DOCKER_ENV="foo=bar,env=baz"
+        # get env from env (CTF_DOCKER_ENV="foo=bar,env=baz")
         try:
             if "CTF_DOCKER_ENV" in os.environ:
                 for variable in os.environ["CTF_DOCKER_ENV"].split(','):
@@ -122,7 +122,7 @@ class Container(object):
         host_c_args_names = docker.utils.utils.create_host_config.__code__.co_varnames
         for arg in host_c_args_names:
             if arg in kwargs:
-                host_args[arg]=kwargs.pop(arg)
+                host_args[arg] = kwargs.pop(arg)
 
         self.container = d.create_container(image=self.image_id,
                                             detach=True,

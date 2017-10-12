@@ -1,12 +1,15 @@
-from behave import when, then, given
+from behave import then, given
 import logging
 import os
 import tempfile
-from container import Container, ExecException
+
+from container import Container
 from steps import _execute
 
-LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=LOG_FORMAT)
+
 
 def s2i_inner(context, application, path='.', env="", incremental=False, tag="master"):
     """Perform an S2I build, that may fail or succeed."""
@@ -14,7 +17,7 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
     if context.table:
         envfile = tempfile.NamedTemporaryFile('wb')
         for row in context.table:
-            envfile.write("%s=%s\n"%(row['variable'],row['value']))
+            envfile.write("%s=%s\n" % (row['variable'], row['value']))
         envfile.flush()
         env = '-E "%s"' % envfile.name
 
@@ -36,6 +39,7 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
         context.config.userdata['s2i_build_log'] = output
     return output
 
+
 @given(u's2i build {application}')
 @given(u's2i build {application} using {tag}')
 @given(u's2i build {application} from {path}')
@@ -55,12 +59,14 @@ def s2i_build(context, application, path='.', env="", incremental=False, tag="ma
     else:
         raise Exception("S2I build failed, check logs!")
 
+
 @given(u'failing s2i build {application} from {path} using {tag}')
 def failing_s2i_build(context, application, path='.', env="", incremental=False, tag="master"):
     if not s2i_inner(context, application, path, env, incremental, tag):
         logging.info("S2I build failed (as expected)")
     else:
         raise Exception("S2I build succeeded when it shouldn't have")
+
 
 @then(u's2i build log should contain {phrase}')
 def s2i_build_log_should_contain(context, phrase):
@@ -69,11 +75,12 @@ def s2i_build_log_should_contain(context, phrase):
 
     raise Exception("Phrase '%s' was not found in the output of S2I" % phrase)
 
+
 @then(u's2i build log should not contain {phrase}')
 def s2i_build_log_should_not_contain(context, phrase):
     try:
         s2i_build_log_should_contain(context, phrase)
-    except Exception as e:
+    except:
         return True
 
     raise Exception("Phrase '%s' was found in the output of S2I" % phrase)
