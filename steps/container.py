@@ -29,7 +29,10 @@ import os
 import re
 import time
 
-d = docker.Client(version="1.22")
+try:
+    d = docker.Client(version="1.22")
+except:
+    d = docker.APIClient(version="1.22")
 
 
 class ExecException(Exception):

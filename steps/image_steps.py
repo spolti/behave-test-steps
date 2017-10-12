@@ -1,12 +1,18 @@
 import docker
 import logging
 
-from behave import when, then, given
-from container import Container, ExecException
 
-DOCKER_CLIENT = docker.Client(version="1.22")
-LOG_FORMAT='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+from behave import then
+
+
+try:
+    DOCKER_CLIENT = docker.Client(version="1.22")
+except:
+    DOCKER_CLIENT = docker.APIClient(version="1.22")
+
+LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=LOG_FORMAT)
+
 
 @then(u'the image should contain label {label}')
 @then(u'the image should contain label {label} {check} value {value}')
