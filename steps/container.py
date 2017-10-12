@@ -120,9 +120,14 @@ class Container(object):
         # create_container - be aware - this moved to differnet place for new docker
         # python API
         host_c_args_names = docker.utils.utils.create_host_config.__code__.co_varnames
+        host_c_args_names = list(host_c_args_names) + ['cpu_quota', 'cpu_period', 'mem_limit']
         for arg in host_c_args_names:
             if arg in kwargs:
                 host_args[arg] = kwargs.pop(arg)
+                try:
+                    host_args[arg] = int(host_args[arg])
+                except:
+                    pass
 
         self.container = d.create_container(image=self.image_id,
                                             detach=True,
