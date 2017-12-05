@@ -29,7 +29,7 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
         mirror = "-e 'MAVEN_MIRROR_URL=http://ce-nexus.usersys.redhat.com/content/groups/public'"
 
     image_id = "integ-" + context.image
-    command = "s2i build --loglevel=5 --force-pull=false %s --context-dir=%s -r=%s %s %s %s %s %s" % (
+    command = "s2i build --loglevel=5 --pull-policy if-not-present %s --context-dir=%s -r=%s %s %s %s %s %s" % (
         mirror, path, tag, env, application, context.image, image_id, "--incremental" if incremental else ""
     )
     logging.info("Executing new S2I build...")
