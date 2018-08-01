@@ -174,12 +174,16 @@ def run_log_contains_msg(context, message, timeout):
     start_time = time.time()
     container = context.containers[-1]
 
+    print("container name: " + container.name)
+    print("timeout " + timeout)
+
     while True:
         logs = container.get_output()
         if message in logs:
             logging.info("Message '%s' was found in the logs" % message)
             return True
         if time.time() > start_time + timeout:
+            print("timeout reached, stopping.")
             break
         # TODO: Add customization option for sleep time
         time.sleep(1)
