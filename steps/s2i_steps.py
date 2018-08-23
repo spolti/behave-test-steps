@@ -15,9 +15,9 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
     """Perform an S2I build, that may fail or succeed."""
     # set up the environment option, if supplied
     if context.table:
-        envfile = tempfile.NamedTemporaryFile('wb')
+        envfile = tempfile.NamedTemporaryFile('w')
         for row in context.table:
-            envfile.write("%s=%s\n" % (row['variable'], row['value']))
+            envfile.write("%s=%s\n" % (row.get('variable'), row.get('value')))
         envfile.flush()
         env = '-E "%s"' % envfile.name
 

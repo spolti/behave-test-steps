@@ -151,7 +151,7 @@ def run_log_matches_regex(context, regex, timeout):
     container = context.containers[-1]
 
     while True:
-        logs = container.get_output()
+        logs = container.get_output().decode()
         if re.search(regex, logs, re.MULTILINE):
             logging.info("regex '%s' matched the logs" % regex)
             return True
@@ -175,7 +175,7 @@ def run_log_contains_msg(context, message, timeout):
     container = context.containers[-1]
 
     while True:
-        logs = container.get_output()
+        logs = container.get_output().decode()
         if message in logs:
             logging.info("Message '%s' was found in the logs" % message)
             return True
@@ -191,8 +191,8 @@ def run_log_contains_msg(context, message, timeout):
 def ckeck_that_paths_are_writeble(context, path):
     container = context.containers[-1]
 
-    user = container.execute(cmd="id -u").strip()
-    group = container.execute(cmd="id -g").strip()
+    user = container.execute(cmd="id -u").strip().decode()
+    group = container.execute(cmd="id -g").strip().decode()
 
     output = container.execute(cmd="find %s ! \( \( -user %s -perm -u=w \) -o \( -group %s -perm -g=w \) \) -ls" % (path, user, group))
 
@@ -241,14 +241,14 @@ def run_command_expect_message(context, cmd, output_phrase, timeout=80):
 
     # If timeout is set to 0, then we'll run the specific command only once
     if timeout == 0:
-        last_output = container.execute(cmd=cmd)
+        last_output = container.execute(cmd=cmd).decode()
         if (not output_phrase) or output_phrase in last_output:
             return True
     else:
         while time.time() < start_time + timeout:
             last_output = None
             try:
-                output = container.execute(cmd=cmd)
+                output = container.execute(cmd=cmd).decode()
                 if output_phrase in output:
                     return True
             except ExecException as e:
