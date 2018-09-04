@@ -1,5 +1,6 @@
 from behave import then, given
 import logging
+import re
 import os
 import tempfile
 
@@ -75,6 +76,12 @@ def s2i_build_log_should_contain(context, phrase):
 
     raise Exception("Phrase '%s' was not found in the output of S2I" % phrase)
 
+@then(u's2i build log should match regex {regex}')
+def s2i_build_log_should_match_regex(context, regex):
+    if re.search(regex, context.config.userdata['s2i_build_log'], re.MULTILINE):
+        return True
+
+    raise Exception("Regex '%s' did not match in the output of S2I" % regex)
 
 @then(u's2i build log should not contain {phrase}')
 def s2i_build_log_should_not_contain(context, phrase):
