@@ -27,7 +27,7 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
     mirror = ""
 
     if os.getenv("CI", False):
-        mirror = "-e 'MAVEN_MIRROR_URL=http://ce-nexus.usersys.redhat.com/content/groups/public'"
+        mirror = "-e 'MAVEN_MIRROR_URL=http://nexus-ce.cloud.paas.upshift.redhat.com/repository/maven-public/'"
 
     image_id = "integ-" + context.image
     command = "s2i build --loglevel=5 --pull-policy if-not-present %s --context-dir=%s -r=%s %s %s %s %s %s" % (
