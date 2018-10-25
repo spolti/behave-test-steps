@@ -44,7 +44,9 @@ def check_xpath(context, xml_file, xpath, value):
                         return True
         else:
             if result == safe_cast_int(result):
-                return True
+                if safe_cast_int(result) == safe_cast_int(value):
+                    return True
+                raise Exception('Expected element count of %s but got %s' % (value, result))
 
         time.sleep(1)
 
