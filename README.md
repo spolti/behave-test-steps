@@ -7,7 +7,7 @@ This repository contains test steps for the [Behave library](https://github.com/
 Because the test steps are rapidly changing by adding new steps or adjusting existing ones
 it does not make sense to combine it together with Cekit releases. These do have different lifecycle. We decided to separate these and so far it's working well.
 
-## Dependencies
+## Dependencies (Cekit 3.0+)
 
 Because test steps have different requirements and these can change over time, Cekit introduced a weak dependency mechanism (see https://github.com/cekit/cekit/pull/357 for more information). In this steps library it is implemented in the `loader.py` file which defines what dependencies are required.
 
