@@ -84,11 +84,19 @@ def start_container_with_args(context, pname="java"):
     kwargs = {}
     for row in context.table:
         kwargs[row['arg']] = row['value']
+        Container
     container = Container(context.config.userdata['IMAGE'], name=context.scenario.name)
     container.start(**kwargs)
     context.containers.append(container)
     wait_for_process(context, pname)
 
+@given(u'container is started with command {command}')
+@when(u'container is started with command {command}')
+def start_container_with_command(context, command, pname="java"):
+    container = Container(context.config.userdata['IMAGE'], name=context.scenario.name)
+    container.execute(command)
+    context.containers.append(container)
+    wait_for_process(context, pname)
 
 @given(u'image is built')
 def image(context):
