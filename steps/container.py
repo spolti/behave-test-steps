@@ -181,6 +181,20 @@ class Container(object):
             self._remove_container()
             self.container = None
 
+
+    def startWithCommand(self, cmd):
+        """ Starts a detached container for selected image with a custom command"""
+
+        self.container = d.create_container(image=self.image_id,
+                                            detach=True,
+                                            tty=True,
+                                            command=cmd)
+        self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
+        d.start(self.container)
+        self.running = True
+        self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
+
+
     def execute(self, cmd):
         """ executes cmd in container and return its output """
         inst = d.exec_create(container=self.container, cmd=cmd)

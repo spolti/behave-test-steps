@@ -5,7 +5,6 @@ import logging
 from steps import TIMEOUT
 from container import Container, ExecException
 
-
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=LOG_FORMAT)
 
@@ -86,6 +85,20 @@ def start_container_with_args(context, pname="java"):
         kwargs[row['arg']] = row['value']
     container = Container(context.config.userdata['IMAGE'], name=context.scenario.name)
     container.start(**kwargs)
+    context.containers.append(container)
+    wait_for_process(context, pname)
+
+
+@given(u'container is started with command {cmd}')
+@when(u'container is started with command {cmd}')
+def start_container_with_command(context, cmd, pname="java"):
+    """
+    This will start a container with a specific command provided by the user
+    Useful for container that does not have an entrypoint or does not executes nothing
+    i.e. start the container with bash command eh perform some commands on the container
+    """
+    container = Container(context.config.userdata['IMAGE'], name=context.scenario.name)
+    container.startWithCommand(cmd)
     context.containers.append(container)
     wait_for_process(context, pname)
 
