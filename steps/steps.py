@@ -27,7 +27,8 @@ def _execute(command, log_output=True):
     logging.debug("Executing '%s' command..." % command)
 
     try:
-        proc = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        proc = subprocess.Popen(command, shell=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         levels = {
             proc.stdout: logging.DEBUG,
@@ -53,13 +54,18 @@ def _execute(command, log_output=True):
                 readx = select.select([proc.stdout, proc.stderr], [], [])[0]
                 for output in readx:
                     line = output.readline()[:-1]
+                    
+                    if isinstance(line, bytes):
+                        line = line.decode("utf-8")
+
                     out += "%s\n" % line
                     logging.log(levels[output], line)
 
         retcode = proc.wait()
 
         if retcode is not 0:
-            logging.error("Command '%s' returned code was %s, check logs" % (command, retcode))
+            logging.error(
+                "Command '%s' returned code was %s, check logs" % (command, retcode))
             return False
 
     except subprocess.CalledProcessError:
@@ -102,7 +108,8 @@ def check_page_is_not_served(context):
         if row['property'] == 'password':
             password = row['value']
     try:
-        handle_request(context, port, wait, timeout, expected_status_code, path, expected_phrase, username, password)
+        handle_request(context, port, wait, timeout, expected_status_code,
+                       path, expected_phrase, username, password)
     except:
         return True
     raise Exception("Page was served")
@@ -137,11 +144,13 @@ def check_page_is_served(context):
             username = row['value']
         if row['property'] == 'password':
             password = row['value']
-    handle_request(context, port, wait, timeout, expected_status_code, path, expected_phrase, username, password)
+    handle_request(context, port, wait, timeout, expected_status_code,
+                   path, expected_phrase, username, password)
 
 
 def handle_request(context, port, wait, timeout, expected_status_code, path, expected_phrase, username, password):
-    logging.info("Checking if the container is returning status code %s on port %s" % (expected_status_code, port))
+    logging.info("Checking if the container is returning status code %s on port %s" % (
+        expected_status_code, port))
 
     start_time = time.time()
     ip = context.containers[-1].ip_address
@@ -149,14 +158,16 @@ def handle_request(context, port, wait, timeout, expected_status_code, path, exp
 
     while time.time() < start_time + wait:
         try:
-            response = requests.get('http://%s:%s%s' % (ip, port, path), timeout=timeout, stream=False, auth=(username, password))
+            response = requests.get('http://%s:%s%s' % (ip, port, path),
+                                    timeout=timeout, stream=False, auth=(username, password))
         except Exception as ex:
             # Logging as warning, bcause this does not neccessarily means
             # something bad. For example the server did not boot yet.
             logging.warn("Exception caught: %s" % repr(ex))
         else:
             latest_status_code = response.status_code
-            logging.info("Response code from the container on port %s: %s (expected: %s)" % (port, latest_status_code, expected_status_code))
+            logging.info("Response code from the container on port %s: %s (expected: %s)" % (
+                port, latest_status_code, expected_status_code))
             if latest_status_code == expected_status_code:
                 if not expected_phrase:
                     # The expected_phrase parameter was not set
@@ -164,7 +175,8 @@ def handle_request(context, port, wait, timeout, expected_status_code, path, exp
 
                 if expected_phrase in response.text:
                     # The expected_phrase parameter was found in the body
-                    logging.info("Document body contains the '%s' phrase!" % expected_phrase)
+                    logging.info(
+                        "Document body contains the '%s' phrase!" % expected_phrase)
                     return True
                 else:
                     # The phrase was not found in the response
@@ -172,7 +184,8 @@ def handle_request(context, port, wait, timeout, expected_status_code, path, exp
                                     "Received body:\n%s" % response.text)  # XXX: better diagnostics
 
         time.sleep(1)
-    raise Exception("handle_request failed", expected_status_code)  # XXX: better diagnostics
+    # XXX: better diagnostics
+    raise Exception("handle_request failed", expected_status_code)
 
 
 @then(u'check that port {port} is open')
@@ -243,7 +256,8 @@ def check_file_count(context, path, count):
         file_count = len(ls.splitlines())
         target_count = int(count)
         if file_count != target_count:
-            raise Exception("Incorrect file count in the %s directory: expected %s files, found %s" % (path, target_count, file_count))
+            raise Exception("Incorrect file count in the %s directory: expected %s files, found %s" % (
+                path, target_count, file_count))
     except Exception as e:
         logging.exception(e)
         raise Exception("Failed to count files at path %s" % path)
