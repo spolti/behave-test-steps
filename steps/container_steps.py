@@ -201,7 +201,7 @@ def run_log_contains_msg(context, message, timeout):
 
 
 @then(u'all files under {path} are writeable by current user')
-def ckeck_that_paths_are_writeble(context, path):
+def check_that_paths_are_writeable(context, path):
     container = context.containers[-1]
 
     user = container.execute(cmd="id -u").strip().decode()
@@ -243,6 +243,10 @@ def run_command_unexpect_message(context, cmd, output_phrase, timeout=80):
 def run_command_once(context, cmd):
     run_command_expect_message(context, cmd, None, timeout=0)
 
+@then(u'run {cmd} in container and detach')
+def run_command_and_detach(context, cmd):
+        container = context.containers[-1]
+        container.execute(cmd=cmd, detach=True)
 
 @then(u'run {cmd} in container and check its output for {output_phrase}')
 @then(u'run {cmd} in container and check its output contains {output_phrase}')

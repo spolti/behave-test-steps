@@ -195,11 +195,15 @@ class Container(object):
         self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
 
 
-    def execute(self, cmd):
+    def execute(self, cmd, detach=False):
         """ executes cmd in container and return its output """
         inst = d.exec_create(container=self.container, cmd=cmd)
 
-        output = d.exec_start(inst)
+        if (detach):
+            d.exec_start(inst, detach)
+            return None
+
+        output = d.exec_start(inst, detach=detach)
         retcode = d.exec_inspect(inst)['ExitCode']
 
         count = 0
