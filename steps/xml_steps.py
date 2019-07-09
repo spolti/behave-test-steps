@@ -20,6 +20,13 @@ def register_xml_namespaces(context):
 
 @then('XML file {xml_file} should contain value {value} on XPath {xpath}')
 def check_xpath(context, xml_file, xpath, value):
+    return check_xpath_internal(context, xml_file, xpath, value, False)
+
+@then('XML file {xml_file} should contain trimmed value {value} on XPath {xpath}')
+def check_xpath_stripped(context, xml_file, xpath, value):
+    return check_xpath_internal(context, xml_file, xpath, value, True)
+
+def check_xpath_internal(context, xml_file, xpath, value, strip):
     start_time = time.time()
 
     container = context.containers[-1]
@@ -36,11 +43,11 @@ def check_xpath(context, xml_file, xpath, value):
         if isinstance(result, list):
             for option in result:
                 if isinstance(option, str):
-                    if str(option) == str(value):
+                    if compare_strings(str(option), str(value), strip):
                         return True
                 else:
                     # We assume here that result is Element class
-                    if option.text == str(value):
+                    if compare_strings(option.text, str(value), strip):
                         return True
         else:
             if result == safe_cast_int(result):
@@ -63,3 +70,9 @@ def safe_cast_int(value, default=None):
         return int(value)
     except ValueError:
         return default
+
+def compare_strings(value1, value2, strip):
+    if strip:
+        return value1.strip() == value2.strip()
+    else:
+        return value1 == value2
