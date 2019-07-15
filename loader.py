@@ -1,6 +1,6 @@
 class StepsLoader(object):
     @staticmethod
-    def dependencies():
+    def dependencies(params=None):
         deps = {}
 
         deps['python-docker'] = {
