@@ -321,3 +321,8 @@ def inspect_container(context):
                 raise Exception("Value '%s' not present" % value)
         elif str(location) != value:
             raise Exception("Value '%s' not present" % value)
+
+@then(u'copy {src_file} to {dest_folder} in container')
+def copy_file_to_container(context, src_file, dest_folder):
+    container = context.containers[-1]
+    container.copy_file_to_container(src_file, dest_folder)
