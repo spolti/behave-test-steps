@@ -89,53 +89,7 @@ class Container(object):
 
     def start(self, **kwargs):
         """ Starts a detached container for selected image """
-        if self.running:
-            self.logging.debug("Container is running")
-            return
-
-        volume_mount_points = None
-        host_args = {}
-
-        if self.volumes:
-            volume_mount_points = []
-            for volume in self.volumes:
-                volume_mount_points.append(volume.split(":")[0])
-            host_args['binds'] = self.volumes
-
-        # update kwargs with env override
-        kwargs_env = kwargs["environment"] if "environment" in kwargs else {}
-        kwargs_env.update(self.environ)
-        kwargs.update(dict(environment=kwargs_env))
-
-        # 'env_json' is an environment dict packed into JSON, possibly supplied by
-        # steps like 'container is started with args'
-        if "env_json" in kwargs:
-            env = json.loads(kwargs["env_json"])
-            kwargs_env = kwargs["environment"] if "environment" in kwargs else {}
-            kwargs_env.update(env)
-            kwargs.update(dict(environment=kwargs_env))
-            del kwargs["env_json"]
-
-        self.logging.debug("Creating container from image '%s'..." % self.image_id)
-
-        # we need to split kwargs to the args with belongs to create_host_config and
-        # create_container - be aware - this moved to differnet place for new docker
-        # python API
-        host_c_args_names = docker.utils.utils.create_host_config.__code__.co_varnames
-        host_c_args_names = list(host_c_args_names) + ['cpu_quota', 'cpu_period', 'mem_limit']
-        for arg in host_c_args_names:
-            if arg in kwargs:
-                host_args[arg] = kwargs.pop(arg)
-                try:
-                    host_args[arg] = int(host_args[arg])
-                except:
-                    pass
-
-        self.container = d.create_container(image=self.image_id,
-                                            detach=True,
-                                            volumes=volume_mount_points,
-                                            host_config=d.create_host_config(**host_args),
-                                            **kwargs)
+        self._create_container(**kwargs)
         self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
         d.start(container=self.container)
         self.running = True
@@ -184,13 +138,9 @@ class Container(object):
             self.container = None
 
 
-    def startWithCommand(self, cmd):
+    def startWithCommand(self, **kwargs):
         """ Starts a detached container for selected image with a custom command"""
-
-        self.container = d.create_container(image=self.image_id,
-                                            detach=True,
-                                            tty=True,
-                                            command=cmd)
+        self._create_container(tty=True, **kwargs)
         self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
         d.start(self.container)
         self.running = True
@@ -251,3 +201,54 @@ class Container(object):
                 container=self.container['Id'],
                 path=dest_folder,
                 data=f.read())
+
+    def _create_container(self, **kwargs):
+        """ Creates a detached container for selected image """
+        if self.running:
+            self.logging.debug("Container is running")
+            return
+
+        volume_mount_points = None
+        host_args = {}
+
+        if self.volumes:
+            volume_mount_points = []
+            for volume in self.volumes:
+                volume_mount_points.append(volume.split(":")[0])
+            host_args['binds'] = self.volumes
+
+        # update kwargs with env override
+        kwargs_env = kwargs["environment"] if "environment" in kwargs else {}
+        kwargs_env.update(self.environ)
+        kwargs.update(dict(environment=kwargs_env))
+
+        # 'env_json' is an environment dict packed into JSON, possibly supplied by
+        # steps like 'container is started with args'
+        if "env_json" in kwargs:
+            env = json.loads(kwargs["env_json"])
+            kwargs_env = kwargs["environment"] if "environment" in kwargs else {}
+            kwargs_env.update(env)
+            kwargs.update(dict(environment=kwargs_env))
+            del kwargs["env_json"]
+
+        self.logging.debug("Creating container from image '%s'..." % self.image_id)
+
+        # we need to split kwargs to the args with belongs to create_host_config and
+        # create_container - be aware - this moved to differnet place for new docker
+        # python API
+        host_c_args_names = docker.utils.utils.create_host_config.__code__.co_varnames
+        host_c_args_names = list(host_c_args_names) + ['cpu_quota', 'cpu_period', 'mem_limit']
+        for arg in host_c_args_names:
+            if arg in kwargs:
+                host_args[arg] = kwargs.pop(arg)
+                try:
+                    host_args[arg] = int(host_args[arg])
+                except:
+                    pass
+
+        self.container = d.create_container(image=self.image_id,
+                                            detach=True,
+                                            volumes=volume_mount_points,
+                                            host_config=d.create_host_config(**host_args),
+                                            **kwargs)
+

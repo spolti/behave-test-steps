@@ -97,8 +97,15 @@ def start_container_with_command(context, cmd, pname="java"):
     Useful for container that does not have an entrypoint or does not executes nothing
     i.e. start the container with bash command eh perform some commands on the container
     """
+    env = {}
+    if (context.table):
+        for row in context.table:
+            env[row['variable']] = row['value']
+
     container = Container(context.config.userdata['IMAGE'], name=context.scenario.name)
-    container.startWithCommand(cmd)
+    kwargs = {"command": cmd, "environment": env}
+    container.startWithCommand(**kwargs)
+
     context.containers.append(container)
     wait_for_process(context, pname)
 
@@ -286,7 +293,6 @@ def file_should_contain(context, filename, phrase):
 def file_should_not_contain(context, filename, phrase):
     filename = context.variables.get(filename[1:], filename)
     run_command_unexpect_message(context, 'cat %s' % filename, phrase, timeout=10)
-
 
 @then(u'inspect container')
 def inspect_container(context):
