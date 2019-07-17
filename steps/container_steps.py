@@ -207,7 +207,7 @@ def check_that_paths_are_writeable(context, path):
     user = container.execute(cmd="id -u").strip().decode()
     group = container.execute(cmd="id -g").strip().decode()
 
-    output = container.execute(cmd="find %s ! \( \( -user %s -perm -u=w \) -o \( -group %s -perm -g=w \) \) -ls" % (path, user, group))
+    output = container.execute(cmd="find %s ! ( ( -user %s -perm -u=w ) -o ( -group %s -perm -g=w ) ) -ls" % (path, user, group))
 
     if len(output) is 0:
         return True
@@ -243,10 +243,12 @@ def run_command_unexpect_message(context, cmd, output_phrase, timeout=80):
 def run_command_once(context, cmd):
     run_command_expect_message(context, cmd, None, timeout=0)
 
+
 @then(u'run {cmd} in container and detach')
 def run_command_and_detach(context, cmd):
         container = context.containers[-1]
         container.execute(cmd=cmd, detach=True)
+
 
 @then(u'run {cmd} in container and check its output for {output_phrase}')
 @then(u'run {cmd} in container and check its output contains {output_phrase}')
