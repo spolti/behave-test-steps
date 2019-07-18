@@ -53,7 +53,8 @@ def check_xpath_internal(context, xml_file, xpath, value, strip):
             if result == safe_cast_int(result):
                 if safe_cast_int(result) == safe_cast_int(value):
                     return True
-                raise Exception('Expected element count of %s but got %s' % (value, result))
+                if time.time() >= start_time + TIMEOUT:
+                    raise Exception('Expected element count of %s but got %s' % (value, result))
 
         time.sleep(1)
 
