@@ -26,12 +26,11 @@ def check_xpath(context, xml_file, xpath, value):
 def check_xpath_stripped(context, xml_file, xpath, value):
     return check_xpath_internal(context, xml_file, xpath, value, True)
 
-def check_xpath_internal(context, xml_file, xpath, value, strip):
-    start_time = time.time()
-
+def check_xpath_internal(context, xml_file, xpath, value, strip, timeout=TIMEOUT):
+    end_time = time.time() + int(timeout)
     container = context.containers[-1]
 
-    while time.time() < start_time + TIMEOUT:
+    while time.time() < end_time:
         content = container.execute(cmd="cat %s" % xml_file)
         document = etree.fromstring(content)
 
@@ -53,7 +52,7 @@ def check_xpath_internal(context, xml_file, xpath, value, strip):
             if result == safe_cast_int(result):
                 if safe_cast_int(result) == safe_cast_int(value):
                     return True
-                if time.time() >= start_time + TIMEOUT:
+                if time.time() >= end_time:
                     raise Exception('Expected element count of %s but got %s' % (value, result))
 
         time.sleep(1)
@@ -62,8 +61,9 @@ def check_xpath_internal(context, xml_file, xpath, value, strip):
 
 
 @then('XML file {xml_file} should have {count} elements on XPath {xpath}')
-def check_xml_element_count(context, xml_file, xpath, count):
-    check_xpath(context, xml_file, 'count(' + xpath + ')', count)
+@then('XML file {xml_file} should have {count} elements on XPath {xpath} and wait {timeout} seconds')
+def check_xml_element_count(context, xml_file, xpath, count, timeout=0):
+    check_xpath_internal(context, xml_file, 'count(' + xpath + ')', count, False, timeout)
 
 
 def safe_cast_int(value, default=None):
