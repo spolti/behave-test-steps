@@ -57,7 +57,7 @@ def check_xpath_internal(context, xml_file, xpath, value, strip, timeout=TIMEOUT
 
         time.sleep(1)
 
-    raise Exception('XPath expression "%s" did not match "%s"' % (xpath, value), content)
+    raise Exception('XPath expression "%s" did not match "%s"' % (xpath, value))
 
 
 @then('XML file {xml_file} should have {count} elements on XPath {xpath}')
