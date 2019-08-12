@@ -27,6 +27,7 @@ def check_xpath_stripped(context, xml_file, xpath, value):
     return check_xpath_internal(context, xml_file, xpath, value, True)
 
 def check_xpath_internal(context, xml_file, xpath, value, strip, timeout=TIMEOUT):
+    timeout = float(timeout)
     start_time = time.time()
     container = context.containers[-1]
 
