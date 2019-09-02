@@ -43,6 +43,9 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
         context.config.userdata['s2i_build_log'] = output
     return output
 
+@given(u's2i build {application} from {path} with env and {incremental} using {tag} without running')
+def s2i_build_no_run(context, application, path='.', env="", incremental=False, tag="master"):
+    s2i_build(context, application, path, env, incremental, tag, False)
 
 @given(u's2i build {application}')
 @given(u's2i build {application} using {tag}')
@@ -63,10 +66,6 @@ def s2i_build(context, application, path='.', env="", incremental=False, tag="ma
             context.containers.append(container)
     else:
         raise Exception("S2I build failed, check logs!")
-
-@given(u's2i build {application} from {path} with env and {incremental} using {tag} without running')
-def s2i_build_no_run(context, application, path='.', env="", incremental=False, tag="master"):
-    s2i_build(context, application, path, env, incremental, tag, False)
 
 @given(u'failing s2i build {application} from {path} using {tag}')
 def failing_s2i_build(context, application, path='.', env="", incremental=False, tag="master"):
