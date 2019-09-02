@@ -91,7 +91,8 @@ def start_container_with_args(context, pname="java"):
 
 @given(u'container is started with command {cmd}')
 @when(u'container is started with command {cmd}')
-def start_container_with_command(context, cmd, pname="java"):
+@when(u'container {name} is started with command {cmd}')
+def start_container_with_command(context, cmd, name="", pname="java"):
     """
     This will start a container with a specific command provided by the user
     Useful for container that does not have an entrypoint or does not executes nothing
@@ -102,7 +103,7 @@ def start_container_with_command(context, cmd, pname="java"):
         for row in context.table:
             env[row['variable']] = row['value']
 
-    container = Container(context.config.userdata['IMAGE'], name=context.scenario.name)
+    container = Container(name + context.config.userdata['IMAGE'], name=context.scenario.name)
     kwargs = {"command": cmd, "environment": env}
     container.startWithCommand(**kwargs)
 

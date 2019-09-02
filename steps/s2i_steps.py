@@ -52,14 +52,16 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
 @given(u's2i build {application} from {path} with env using {tag}')
 @given(u's2i build {application} from {path} with env and {incremental}')
 @given(u's2i build {application} from {path} with env and {incremental} using {tag}')
-def s2i_build(context, application, path='.', env="", incremental=False, tag="master"):
+@given(u's2i build {application} from {path} with env and {incremental} using {tag} and run {run}')
+def s2i_build(context, application, path='.', env="", incremental=False, tag="master", run=True):
     """Perform an S2I build, that must succeed."""
     if s2i_inner(context, application, path, env, incremental, tag):
         image_id = "integ-" + context.image
         logging.info("S2I build succeeded, image %s was built" % image_id)
-        container = Container(image_id, name=context.scenario.name)
-        container.start()
-        context.containers.append(container)
+        if run:
+            container = Container(image_id, name=context.scenario.name)
+            container.start()
+            context.containers.append(container)
     else:
         raise Exception("S2I build failed, check logs!")
 
