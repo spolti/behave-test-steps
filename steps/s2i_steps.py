@@ -12,7 +12,7 @@ LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=LOG_FORMAT)
 
 
-def s2i_inner(context, application, path='.', env="", incremental=False, tag="master"):
+def s2i_inner(context, application, path='.', env="", incremental=False, tag="master", runtime_image=""):
     """Perform an S2I build, that may fail or succeed."""
     # set up the environment option, if supplied
     if context.table:
@@ -33,10 +33,11 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
         mirror = "-e 'MAVEN_MIRROR_URL=%s'" % os.getenv("MAVEN_MIRROR_URL")
         
     image_id = "integ-" + context.image
-    command = "s2i build --loglevel=5 --pull-policy if-not-present %s --context-dir=%s -r=%s %s %s %s %s %s" % (
-        mirror, path, tag, env, application, context.image, image_id, "--incremental" if incremental else ""
+    command = "s2i build --loglevel=5 --pull-policy if-not-present %s --context-dir=%s -r=%s %s %s %s %s %s %s" % (
+        mirror, path, tag, env, application, context.image, image_id, "--incremental" if incremental else "",
+        "--runtime-image="+runtime_image if runtime_image else ""
     )
-    logging.info("Executing new S2I build...")
+    logging.info("Executing new S2I build with the command [%s]..." % command)
 
     output = _execute(command)
     if output:
@@ -45,7 +46,7 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
 
 @given(u's2i build {application} from {path} with env and {incremental} using {tag} without running')
 def s2i_build_no_run(context, application, path='.', env="", incremental=False, tag="master"):
-    s2i_build(context, application, path, env, incremental, tag, False)
+    s2i_build(context, application, path, env, incremental, tag, False, "")
 
 @given(u's2i build {application}')
 @given(u's2i build {application} using {tag}')
@@ -55,9 +56,10 @@ def s2i_build_no_run(context, application, path='.', env="", incremental=False, 
 @given(u's2i build {application} from {path} with env using {tag}')
 @given(u's2i build {application} from {path} with env and {incremental}')
 @given(u's2i build {application} from {path} with env and {incremental} using {tag}')
-def s2i_build(context, application, path='.', env="", incremental=False, tag="master", run=True):
+@given(u's2i build {application} from {path} using {tag} and runtime-image {runtime_image}')
+def s2i_build(context, application, path='.', env="", incremental=False, tag="master", run=True, runtime_image=""):
     """Perform an S2I build, that must succeed."""
-    if s2i_inner(context, application, path, env, incremental, tag):
+    if s2i_inner(context, application, path, env, incremental, tag, runtime_image):
         image_id = "integ-" + context.image
         logging.info("S2I build succeeded, image %s was built" % image_id)
         if run:
@@ -68,8 +70,8 @@ def s2i_build(context, application, path='.', env="", incremental=False, tag="ma
         raise Exception("S2I build failed, check logs!")
 
 @given(u'failing s2i build {application} from {path} using {tag}')
-def failing_s2i_build(context, application, path='.', env="", incremental=False, tag="master"):
-    if not s2i_inner(context, application, path, env, incremental, tag):
+def failing_s2i_build(context, application, path='.', env="", incremental=False, tag="master", runtime_image=""):
+    if not s2i_inner(context, application, path, env, incremental, tag, runtime_image):
         logging.info("S2I build failed (as expected)")
     else:
         raise Exception("S2I build succeeded when it shouldn't have")
