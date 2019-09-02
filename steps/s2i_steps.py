@@ -52,7 +52,6 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
 @given(u's2i build {application} from {path} with env using {tag}')
 @given(u's2i build {application} from {path} with env and {incremental}')
 @given(u's2i build {application} from {path} with env and {incremental} using {tag}')
-@given(u's2i build {application} from {path} with env and {incremental} using {tag} and run {run}')
 def s2i_build(context, application, path='.', env="", incremental=False, tag="master", run=True):
     """Perform an S2I build, that must succeed."""
     if s2i_inner(context, application, path, env, incremental, tag):
@@ -65,6 +64,9 @@ def s2i_build(context, application, path='.', env="", incremental=False, tag="ma
     else:
         raise Exception("S2I build failed, check logs!")
 
+@given(u's2i build {application} from {path} with env and {incremental} using {tag} without running')
+def s2i_build_no_run(context, application, path='.', env="", incremental=False, tag="master"):
+    s2i_build(context, application, path, env, incremental, tag, False)
 
 @given(u'failing s2i build {application} from {path} using {tag}')
 def failing_s2i_build(context, application, path='.', env="", incremental=False, tag="master"):
