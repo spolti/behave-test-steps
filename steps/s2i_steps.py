@@ -35,6 +35,7 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
     image_id = "integ-" + context.image
     command = "s2i build --loglevel=5 --pull-policy if-not-present %s --context-dir=%s -r=%s %s %s %s %s %s %s" % (
         mirror, path, tag, env, application, context.image, image_id, "--incremental" if incremental else "",
+
         "--runtime-image="+runtime_image if runtime_image else ""
     )
     logging.info("Executing new S2I build with the command [%s]..." % command)
