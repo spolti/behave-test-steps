@@ -87,8 +87,8 @@ def check_page_is_not_served(context):
     expected_status_code = 200
     path = '/'
     expected_phrase = None
-    username = ''
-    password = ''
+    username = None
+    password = None
     # adjust defaults from user table
     for row in context.table:
         if row['property'] == 'port':
@@ -124,8 +124,8 @@ def check_page_is_served(context):
     expected_status_code = 200
     path = '/'
     expected_phrase = None
-    username = ''
-    password = ''
+    username = None
+    password = None
     # adjust defaults from user table
     for row in context.table:
         if row['property'] == 'port':
@@ -155,11 +155,14 @@ def handle_request(context, port, wait, timeout, expected_status_code, path, exp
     start_time = time.time()
     ip = context.containers[-1].ip_address
     latest_status_code = 0
+    auth=None
+    if (username != None) or (password != None):
+        auth=(username, password)
 
     while time.time() < start_time + wait:
         try:
             response = requests.get('http://%s:%s%s' % (ip, port, path),
-                                    timeout=timeout, stream=False, auth=(username, password))
+                                    timeout=timeout, stream=False, auth=auth)
         except Exception as ex:
             # Logging as warning, bcause this does not neccessarily means
             # something bad. For example the server did not boot yet.
