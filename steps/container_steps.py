@@ -22,6 +22,10 @@ def log_matches_regex(context, regex, timeout=TIMEOUT):
     if not run_log_matches_regex(context, regex, timeout):
         raise Exception("Regex '%s' did not match the logs" % regex)
 
+@then(u'exactly {num} times container log should contain {message}')
+def log_contains_msg_multiple_times(context, message, num, timeout=TIMEOUT):
+    if not run_log_contains_msg_multiple_times(context, message, num, timeout):
+        raise Exception("Message '%s' was not found %s times in the logs" % (message, num))
 
 @then(u'container log should contain {message}')
 def log_contains_msg(context, message, timeout=TIMEOUT):
@@ -202,6 +206,36 @@ def run_log_contains_msg(context, message, timeout):
             return True
         if time.time() > start_time + timeout:
             break
+        # TODO: Add customization option for sleep time
+        time.sleep(1)
+    else:
+        return False
+
+def run_log_contains_msg_multiple_times(context, message, num, timeout):
+    """
+    Main method that handles checking the container log
+    output. It's used to determine whether the message
+    is found a number of times in the log or not. It uses optional timeout
+    mechanism.
+    """
+
+    start_time = time.time()
+    container = context.containers[-1]
+    expected = int(num)
+    count = 0
+    while True:
+        logs = container.get_output().decode()
+        count = logs.count(message)
+        if count > expected:
+            logging.info("Message '%s' was found in the logs %d times although expected is %d" % (message, count, expected))
+            return False  
+        if time.time() > start_time + timeout:
+            if count == expected:
+                logging.info("Message '%s' was found in the logs %d times" % (message, expected))
+                return True
+            else:
+                logging.info("Message '%s' was found in the logs %d times although expected is %d" % (message, count, expected))
+                break
         # TODO: Add customization option for sleep time
         time.sleep(1)
     else:
