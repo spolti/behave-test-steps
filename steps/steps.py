@@ -89,6 +89,9 @@ def check_page_is_not_served(context):
     expected_phrase = None
     username = None
     password = None
+    request_method = 'GET'
+    content_type = None
+    request_body = None
     # adjust defaults from user table
     for row in context.table:
         if row['property'] == 'port':
@@ -107,13 +110,18 @@ def check_page_is_not_served(context):
             username = row['value']
         if row['property'] == 'password':
             password = row['value']
+        if row['property'] == 'request_method':
+            request_method = row['value']
+        if row['property'] == 'content_type':
+            content_type = row['value']
+        if row['property'] == 'request_body':
+            request_body = row['value']
     try:
         handle_request(context, port, wait, timeout, expected_status_code,
-                       path, expected_phrase, username, password)
+                       path, expected_phrase, username, password, request_method, content_type, request_body)
     except:
         return True
     raise Exception("Page was served")
-
 
 @then(u'check that page is served')
 def check_page_is_served(context):
@@ -126,6 +134,9 @@ def check_page_is_served(context):
     expected_phrase = None
     username = None
     password = None
+    request_method = 'GET'
+    content_type = None
+    request_body = None
     # adjust defaults from user table
     for row in context.table:
         if row['property'] == 'port':
@@ -144,11 +155,17 @@ def check_page_is_served(context):
             username = row['value']
         if row['property'] == 'password':
             password = row['value']
+        if row['property'] == 'request_method':
+            request_method = row['value']
+        if row['property'] == 'content_type':
+            content_type = row['value']
+        if row['property'] == 'request_body':
+            request_body = row['value']
     handle_request(context, port, wait, timeout, expected_status_code,
-                   path, expected_phrase, username, password)
+                   path, expected_phrase, username, password, request_method, content_type, request_body)
 
 
-def handle_request(context, port, wait, timeout, expected_status_code, path, expected_phrase, username, password):
+def handle_request(context, port, wait, timeout, expected_status_code, path, expected_phrase, username, password, request_method, content_type, request_body):
     logging.info("Checking if the container is returning status code %s on port %s" % (
         expected_status_code, port))
 
@@ -156,13 +173,21 @@ def handle_request(context, port, wait, timeout, expected_status_code, path, exp
     ip = context.containers[-1].ip_address
     latest_status_code = 0
     auth=None
+    headers=None
     if (username != None) or (password != None):
         auth=(username, password)
 
+    if content_type != None:
+        headers={'Content-type': content_type}
+
     while time.time() < start_time + wait:
         try:
-            response = requests.get('http://%s:%s%s' % (ip, port, path),
-                                    timeout=timeout, stream=False, auth=auth)
+            if request_method == 'GET':
+                response = requests.get('http://%s:%s%s' % (ip, port, path),
+                                        timeout=timeout, stream=False, auth=auth)
+            elif request_method == 'POST':
+                response = requests.post('http://%s:%s%s' % (ip, port, path),
+                                         timeout=timeout, stream=False, auth=auth, headers=headers, data=request_body)
         except Exception as ex:
             # Logging as warning, bcause this does not neccessarily means
             # something bad. For example the server did not boot yet.
