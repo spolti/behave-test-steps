@@ -26,9 +26,6 @@ def s2i_inner(context, application, path='.', env="", incremental=False, tag="ma
 
     mirror = ""
 
-    if os.getenv("CI", False):
-        mirror = "-e 'MAVEN_MIRROR_URL=http://nexus-ce.cloud.paas.upshift.redhat.com/repository/maven-public/'"
-
     if os.getenv("MAVEN_MIRROR_URL", False):
         mirror = "-e 'MAVEN_MIRROR_URL=%s'" % os.getenv("MAVEN_MIRROR_URL")
         
