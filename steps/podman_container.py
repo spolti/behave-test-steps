@@ -268,13 +268,6 @@ class Container(object):
         #                                     host_config=d.create_host_config(**host_args),
         #                                     **kwargs)
         img = p.images.get(self.image_id)
-        container = img.create(image=self.image_id,
-                         detach=True,
-                         volumes=volume_mount_points,
-                         **kwargs)
-        try:
-            container.start()
-            print()
-        except (BrokenPipeError, KeyboardInterrupt):
-            print('\nContainer disconnected.')
+        self.container = img.create(detach=True)
+
 
