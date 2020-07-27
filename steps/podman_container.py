@@ -271,7 +271,6 @@ class Container(object):
         container = img.create(image=self.image_id,
                          detach=True,
                          volumes=volume_mount_points,
-                         host_config=d.create_host_config(**host_args),
                          **kwargs)
         try:
             container.start()
