@@ -3,7 +3,8 @@ import time
 import re
 import logging
 from steps import TIMEOUT
-from container import Container, ExecException
+#from container import Container, ExecException
+from podman_container import Container, ExecException
 
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(format=LOG_FORMAT)
