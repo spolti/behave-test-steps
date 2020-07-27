@@ -95,7 +95,7 @@ class Container(object):
         self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
         # d.start(container=self.container)
         print(self.container)
-        print(p.containers.list())
+        print(p.containers.get(self.container.get('Id')))
         self.running = True
         self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
 
