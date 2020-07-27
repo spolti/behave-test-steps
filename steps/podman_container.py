@@ -186,7 +186,8 @@ class Container(object):
     def inspect(self):
         if self.container:
             # return d.inspect_container(container=self.container.get('Id'))
-            return p.containers.get(self.container.get('id')).inspect()['Id']
+            print(p.containers.get(self.container.get('id')).inspect())
+            return p.containers.get(self.container.get('id')).inspect()
 
     def get_output(self, history=True):
         try:
