@@ -95,7 +95,7 @@ class Container(object):
         self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
         # d.start(container=self.container)
         print(self.container.get('id'))
-        print(p.containers.get(self.container.get('id')).start)
+        p.containers.get(self.container.get('id')).start
         self.running = True
         self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
 
@@ -186,7 +186,7 @@ class Container(object):
     def inspect(self):
         if self.container:
             # return d.inspect_container(container=self.container.get('Id'))
-            return p.containers.get(self.container).inspect()['Id']
+            return p.containers.get(self.container.get('id')).inspect()['Id']
 
     def get_output(self, history=True):
         try:
