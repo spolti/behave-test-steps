@@ -269,6 +269,6 @@ class Container(object):
         #                                     host_config=d.create_host_config(**host_args),
         #                                     **kwargs)
         img = p.images.get(self.image_id)
-        self.container = img.create(detach=True)
+        self.container = img.create(detach=True, **kwargs)
 
 
