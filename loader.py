@@ -39,4 +39,12 @@ class StepsLoader(object):
             'executable': 's2i'
         }
 
+        deps['podman'] = {
+            'executable': 'podman',
+            'package': 'podman',
+            'fedora': {
+                'package': 'python3-podman-api',
+            }
+        }
+
         return deps

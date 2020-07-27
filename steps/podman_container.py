@@ -31,10 +31,11 @@ import tarfile
 import tempfile
 import time
 
-try:
-    p = podman.Client()
-except:
-    p = podman.APIClient()
+with podman.Client() as client:
+    try:
+        p = client
+    except:
+        raise
 
 
 class ExecException(Exception):
@@ -56,7 +57,7 @@ class Container(object):
         self.output_dir = output_dir
         self.save_output = save_output
         self.remove_image = remove_image
-        self.kwargs = kwargs
+        self.kwargs = kwargs<<<<<<< behavePodman
         self.logging = logging.getLogger("dock.middleware.container")
         self.running = False
         self.volumes = volumes
