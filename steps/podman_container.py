@@ -22,14 +22,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.mgb
 """
 from __future__ import print_function
-import podman
+
 import json
 import logging
 import os
 import re
-import tarfile
-import tempfile
 import time
+
+import podman
 
 with podman.Client(uri=f"unix:/run/user/{os.getuid()}/podman/io.podman") as client:
     try:
@@ -49,7 +49,8 @@ class Container(object):
     Object representing a docker test container, it is used in tests
     """
 
-    def __init__(self, image_id, name=None, remove_image=False, output_dir="output", save_output=True, volumes=None, **kwargs):
+    def __init__(self, image_id, name=None, remove_image=False, output_dir="output", save_output=True, volumes=None,
+                 **kwargs):
         self.image_id = image_id
         self.container = None
         self.name = name
@@ -92,7 +93,7 @@ class Container(object):
         """ Starts a detached container for selected image """
         self._create_container(**kwargs)
         self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
-        #d.start(container=self.container)
+        # d.start(container=self.container)
         p.containers.get(container=self.container).start()
         self.running = True
         self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
@@ -100,7 +101,7 @@ class Container(object):
     def _remove_container(self, number=1):
         self.logging.info("Removing container '%s', %s try..." % (self.container['Id'], number))
         try:
-            #d.remove_container(self.container)
+            # d.remove_container(self.container)
             p.containers.get(self.container).remove()
             self.logging.info("Container '%s' removed", self.container['Id'])
         except:
@@ -129,33 +130,31 @@ class Container(object):
             if not os.path.exists(self.output_dir):
                 os.makedirs(self.output_dir)
             with open(out_path, 'w') as f:
-                #print(d.logs(container=self.container.get('Id'), stream=False), file=f)
+                # print(d.logs(container=self.container.get('Id'), stream=False), file=f)
                 print(p.containers.get(self.container).logs(container=self.container.get('Id'), stream=False), file=f)
 
         if self.container:
             self.logging.debug("Removing container '%s'" % self.container['Id'])
             # Kill only running container
             if self.inspect()['State']['Running']:
-                #d.kill(container=self.container)
+                # d.kill(container=self.container)
                 p.containers.get(container=self.container).kill()
             self.running = False
             self._remove_container()
             self.container = None
 
-
     def startWithCommand(self, **kwargs):
         """ Starts a detached container for selected image with a custom command"""
         self._create_container(tty=True, **kwargs)
         self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
-        #d.start(self.container)
+        # d.start(self.container)
         p.containers.get(self.container).start()
         self.running = True
         self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
 
-
     def execute(self, cmd, detach=False):
         """ executes cmd in container and return its output """
-        #inst = d.exec_create(container=self.container, cmd=cmd)
+        # inst = d.exec_create(container=self.container, cmd=cmd)
         inst = p.containers.get(self.container).send(container=self.container, cmd=cmd)
 
         # if (detach):
@@ -163,16 +162,16 @@ class Container(object):
         #     p.containers.get(self.container).start()
         #     return None
 
-        #output = d.exec_start(inst, detach=detach)
+        # output = d.exec_start(inst, detach=detach)
         output = p.containers.get(self.container)
-        #retcode = d.exec_inspect(inst)['ExitCode']
+        # retcode = d.exec_inspect(inst)['ExitCode']
         retcode = p.containers.get(self.container).inspect()['ExitCode']
 
         count = 0
 
         while retcode is None:
             count += 1
-            #retcode = d.exec_inspect(inst)['ExitCode']
+            # retcode = d.exec_inspect(inst)['ExitCode']
             retcode = p.containers.get(self.container).inspect()['ExitCode']
             time.sleep(1)
             if count > 15:
@@ -185,20 +184,20 @@ class Container(object):
 
     def inspect(self):
         if self.container:
-            #return d.inspect_container(container=self.container.get('Id'))
+            # return d.inspect_container(container=self.container.get('Id'))
             return p.containers.get(self.container).inspect()['Id']
 
     def get_output(self, history=True):
         try:
-            #return d.logs(container=self.container)
+            # return d.logs(container=self.container)
             return p.containers.get(self.container).logs()
         except:
-            #return d.attach(container=self.container, stream=False, logs=history)
+            # return d.attach(container=self.container, stream=False, logs=history)
             return p.containers.get(self.container).attach()
 
     def remove_image(self, force=False):
         self.logging.info("Removing image %s" % self.image_id)
-        #d.remove_image(image=self.image_id, force=force)
+        # d.remove_image(image=self.image_id, force=force)
         p.images.get().remove(image=self.image_id, force=force)
 
     # apparantly not supported yet.
@@ -253,7 +252,7 @@ class Container(object):
         # we need to split kwargs to the args with belongs to create_host_config and
         # create_container - be aware - this moved to differnet place for new docker
         # python API
-        #host_c_args_names = podman.utils.create_host_config.__code__.co_varnames
+        # host_c_args_names = podman.utils.create_host_config.__code__.co_varnames
         # host_c_args_names = list(host_c_args_names) + ['cpu_quota', 'cpu_period', 'mem_limit']
         # for arg in host_c_args_names:
         #     if arg in kwargs:
@@ -268,5 +267,15 @@ class Container(object):
         #                                     volumes=volume_mount_points,
         #                                     host_config=d.create_host_config(**host_args),
         #                                     **kwargs)
-        self.container = p.pods.create(self.image_id)
+        img = p.images.get(self.image_id)
+        container = img.create(image=self.image_id,
+                         detach=True,
+                         volumes=volume_mount_points,
+                         host_config=d.create_host_config(**host_args),
+                         **kwargs)
+        try:
+            container.start()
+            print()
+        except (BrokenPipeError, KeyboardInterrupt):
+            print('\nContainer disconnected.')
 
