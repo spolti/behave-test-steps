@@ -57,7 +57,7 @@ class Container(object):
         self.output_dir = output_dir
         self.save_output = save_output
         self.remove_image = remove_image
-        self.kwargs = kwargs<<<<<<< behavePodman
+        self.kwargs = kwargs
         self.logging = logging.getLogger("dock.middleware.container")
         self.running = False
         self.volumes = volumes
