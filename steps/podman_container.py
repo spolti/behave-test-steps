@@ -253,7 +253,8 @@ class Container(object):
         # we need to split kwargs to the args with belongs to create_host_config and
         # create_container - be aware - this moved to differnet place for new docker
         # python API
-        host_c_args_names = podman.utils.create_host_config.__code__.co_varnames
+        #host_c_args_names = podman.utils.create_host_config.__code__.co_varnames
+        host_c_args_names = podman.libs.ConfigDict.get(self.container)
         host_c_args_names = list(host_c_args_names) + ['cpu_quota', 'cpu_period', 'mem_limit']
         for arg in host_c_args_names:
             if arg in kwargs:
