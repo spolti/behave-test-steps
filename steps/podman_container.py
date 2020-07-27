@@ -31,7 +31,7 @@ import tarfile
 import tempfile
 import time
 
-with podman.Client() as client:
+with podman.Client(uri=f"unix:/run/user/{os.getuid()}/podman/io.podman") as client:
     try:
         p = client
     except:
