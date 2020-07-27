@@ -201,8 +201,9 @@ def run_log_contains_msg(context, message, timeout):
     container = context.containers[-1]
 
     while True:
-        logs = container.get_output().decode()
+        logs = container.get_output()
         if message in logs:
+            print("---------__" + message)
             logging.info("Message '%s' was found in the logs" % message)
             return True
         if time.time() > start_time + timeout:

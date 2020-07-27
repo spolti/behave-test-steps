@@ -28,6 +28,7 @@ import logging
 import os
 import re
 import time
+import subprocess
 
 import podman
 
@@ -63,6 +64,7 @@ class Container(object):
         self.running = False
         self.volumes = volumes
         self.environ = {}
+        self.tmpdir = "/tmp"
 
         # get volumes from env (CTF_DOCKER_VOLUME=out:in:z,out2:in2:z)
         try:
@@ -92,21 +94,25 @@ class Container(object):
     def start(self, **kwargs):
         """ Starts a detached container for selected image """
         self._create_container(**kwargs)
-        self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
+        self.logging.debug("Starting container '%s'..." % self.container.get('id'))
         # d.start(container=self.container)
-        print(self.container.get('id'))
-        p.containers.get(self.container.get('id')).start
+        logging.info("AHAHAHAHAHAHA")
+        self.container.start()
+        #p.containers.get(self.container.get('id')).start()
+        logging.info("UhHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
         self.running = True
-        self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
+        # self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
+        self.ip_address = self.inspect()._asdict()['networksettings']['ipaddress']
 
     def _remove_container(self, number=1):
-        self.logging.info("Removing container '%s', %s try..." % (self.container['Id'], number))
+        print('removing container ' + self.container.get('id'))
+        logging.info("Removing container '%s', %s try..." % (self.container.get('id'), number))
         try:
             # d.remove_container(self.container)
-            p.containers.get(self.container).remove()
-            self.logging.info("Container '%s' removed", self.container['Id'])
+            p.containers.get(self.container.get('id')).remove()
+            logging.info("Container '%s' removed", self.container.get('id'))
         except:
-            self.logging.info("Removing container '%s' failed" % self.container['Id'])
+            logging.info("Removing container '%s' failed" % self.container.get('id'))
 
             if number > 3:
                 raise
@@ -122,9 +128,9 @@ class Container(object):
         """
         if self.running and self.save_output:
             if self.name:
-                self.name = "%s_%s" % (self.name, self.container.get('Id'))
+                self.name = "%s_%s" % (self.name, self.container.get('id'))
             else:
-                self.name = self.container.get('Id')
+                self.name = self.container.get('id')
 
             filename = "".join([c for c in self.name if re.match(r'[\w\ ]', c)]).replace(" ", "_")
             out_path = self.output_dir + "/" + filename + ".txt"
@@ -132,14 +138,15 @@ class Container(object):
                 os.makedirs(self.output_dir)
             with open(out_path, 'w') as f:
                 # print(d.logs(container=self.container.get('Id'), stream=False), file=f)
-                print(p.containers.get(self.container).logs(container=self.container.get('Id'), stream=False), file=f)
+                print(p.containers.get(self.container.get('id')).logs(stream=False), file=f)
 
         if self.container:
-            self.logging.debug("Removing container '%s'" % self.container['Id'])
+            logging("KILLLLLLLLLLLLL CONTAINER")
+            self.logging.debug("Removing container '%s'" % self.container.get('id'))
             # Kill only running container
-            if self.inspect()['State']['Running']:
+            if self.inspect()._asdict()['State']['Running']:
                 # d.kill(container=self.container)
-                p.containers.get(container=self.container).kill()
+                p.containers.get(p.containers.get(self.container.get('id'))).kill()
             self.running = False
             self._remove_container()
             self.container = None
@@ -147,11 +154,11 @@ class Container(object):
     def startWithCommand(self, **kwargs):
         """ Starts a detached container for selected image with a custom command"""
         self._create_container(tty=True, **kwargs)
-        self.logging.debug("Starting container '%s'..." % self.container.get('Id'))
+        logging.debug("Starting container '%s'..." % self.container.get('id'))
         # d.start(self.container)
         p.containers.get(self.container).start()
         self.running = True
-        self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
+        self.ip_address = self.inspect()._asdict()['networksettings']['ipaddress']
 
     def execute(self, cmd, detach=False):
         """ executes cmd in container and return its output """
@@ -166,14 +173,14 @@ class Container(object):
         # output = d.exec_start(inst, detach=detach)
         output = p.containers.get(self.container)
         # retcode = d.exec_inspect(inst)['ExitCode']
-        retcode = p.containers.get(self.container).inspect()['ExitCode']
+        retcode = p.containers.get(self.container).inspect()._asdict()['ExitCode']
 
         count = 0
 
         while retcode is None:
             count += 1
             # retcode = d.exec_inspect(inst)['ExitCode']
-            retcode = p.containers.get(self.container).inspect()['ExitCode']
+            retcode = p.containers.get(self.container).inspect()._asdict()['ExitCode']
             time.sleep(1)
             if count > 15:
                 raise ExecException("Command %s timed out, output: %s" % (cmd, output))
@@ -186,21 +193,38 @@ class Container(object):
     def inspect(self):
         if self.container:
             # return d.inspect_container(container=self.container.get('Id'))
-            print(p.containers.get(self.container.get('id')).inspect())
             return p.containers.get(self.container.get('id')).inspect()
 
     def get_output(self, history=True):
         try:
             # return d.logs(container=self.container)
-            return p.containers.get(self.container).logs()
+            # print('llllllllllllllllllllllllllogs')
+            # print(p.containers.get(self.container.get('id')).logs())
+            # while True:
+            #     line = next(podman.client.Containers.get(self.container.get('id')).logs()).decode("utf-8")
+            #     print(line)
+            logging.info("ASAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+
+            logs = p.containers.get(self.container.get('id')).logs()
+            print(logs)
+            # try:
+            #     while True:
+            #         line = next(logs).decode("utf-8")
+            #         print(line)
+            # except StopIteration:
+            #     print(f'log stream ended for %s' % self.container.get('name'))
+
+            # print(p.containers.get(self.container.get('id')).logs())
+            # return p.containers.get(self.container.get('id')).logs()
+            return logs
         except:
             # return d.attach(container=self.container, stream=False, logs=history)
-            return p.containers.get(self.container).attach()
+            return p.containers.get(self.container.get('id')).attach()
 
     def remove_image(self, force=False):
         self.logging.info("Removing image %s" % self.image_id)
         # d.remove_image(image=self.image_id, force=force)
-        p.images.get().remove(image=self.image_id, force=force)
+        p.images.get().remove(self.image_id, force=force)
 
     # apparantly not supported yet.
     # def copy_file_to_container(self, src_file, dest_folder):
@@ -269,7 +293,20 @@ class Container(object):
         #                                     volumes=volume_mount_points,
         #                                     host_config=d.create_host_config(**host_args),
         #                                     **kwargs)
+        #
+        # ctr = img.create(**kwargs)
+        # ctr.start()
+        # print(ctr)
+        logging.info("KLLLLLLLLLLLLLLLLLLLLLLLL4")
         img = p.images.get(self.image_id)
-        self.container = img.create(detach=True, **kwargs)
-
+        self.container = img.container(detach=True, **kwargs))
+        # self.container = img.create(detach=True, tty=True, **kwargs)
+        # self.container.start()
+        #cntr.attach(eot=4, stdout=subprocess.STDOUT)
+        #
+        # try:
+        #     cntr.start()
+        #
+        # except (BrokenPipeError, KeyboardInterrupt):
+        #     print('\nContainer disconnected.')
 
