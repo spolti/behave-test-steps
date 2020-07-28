@@ -300,7 +300,7 @@ class Container(object):
 
         logging.info("KLLLLLLLLLLLLLLLLLLLLLLLL7")
         img = p.images.get(self.image_id)
-        self.container = img.container(detach=True, tty=False, stream=False, **kwargs)
+        self.container = img.container(detach=True, stream=False, **kwargs)
         # self.container = img.create(detach=True, tty=True, **kwargs)
         # self.container.start()
         #cntr.attach(eot=4, stdout=subprocess.STDOUT)
