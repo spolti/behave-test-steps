@@ -97,7 +97,7 @@ class Container(object):
         self.logging.debug("Starting container '%s'..." % self.container.get('id'))
         # d.start(container=self.container)
         logging.info("HANGS HERE")
-        self.container.start()
+        return self.container.start()
         #p.containers.get(self.container.get('id')).start()
         logging.info("DIDN'T HANG YEY!")
         self.running = True
