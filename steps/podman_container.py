@@ -300,7 +300,7 @@ class Container(object):
         # ctr.start()
 
         logging.info("KLLLLLLLLLLLLLLLLLLLLLLLL1")
-        logging.info(**kwargs)
+
         img = p.images.get(self.image_id)
         self.container = img.container(detach=True, tty=True)
         # self.container = img.create(detach=True, tty=True, **kwargs)
