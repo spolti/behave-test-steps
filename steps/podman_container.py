@@ -297,10 +297,10 @@ class Container(object):
         # ctr = img.create(**kwargs)
         # ctr.start()
 
-        logging.info("KLLLLLLLLLLLLLLLLLLLLLLLL5")
+        logging.info("KLLLLLLLLLLLLLLLLLLLLLLLL6")
         img = p.images.get(self.image_id)
         self.container = img.container(detach=True, **kwargs)
-        self.container.start()
+
         # self.container = img.create(detach=True, tty=True, **kwargs)
         # self.container.start()
         #cntr.attach(eot=4, stdout=subprocess.STDOUT)
