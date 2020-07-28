@@ -97,7 +97,7 @@ class Container(object):
         self.logging.debug("Starting container '%s'..." % self.container.get('id'))
         # d.start(container=self.container)
         logging.info("HANGS HERE")
-        return self.container.start()
+        self.container.start()
         #p.containers.get(self.container.get('id')).start()
         logging.info("DIDN'T HANG YEY!")
         self.running = True
@@ -297,9 +297,10 @@ class Container(object):
         # ctr = img.create(**kwargs)
         # ctr.start()
 
-        logging.info("KLLLLLLLLLLLLLLLLLLLLLLLL4")
+        logging.info("KLLLLLLLLLLLLLLLLLLLLLLLL5")
         img = p.images.get(self.image_id)
         self.container = img.container(detach=True, **kwargs)
+        self.container.start()
         # self.container = img.create(detach=True, tty=True, **kwargs)
         # self.container.start()
         #cntr.attach(eot=4, stdout=subprocess.STDOUT)
