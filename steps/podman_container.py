@@ -157,7 +157,7 @@ class Container(object):
         self._create_container(tty=True, **kwargs)
         logging.debug("Starting container '%s'..." % self.container.get('id'))
         # d.start(self.container)
-        self.container.start(stream=False)
+        self.container.start(name="Jubileu", stream=False)
         #p.containers.get(self.container).start()
         self.running = True
         self.ip_address = self.inspect()._asdict()['networksettings']['ipaddress']
