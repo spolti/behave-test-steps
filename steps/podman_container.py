@@ -33,7 +33,7 @@ import subprocess
 import podman
 
 #with podman.Client(uri=f"unix:/run/user/{os.getuid()}/podman/io.podman") as client:
-with podman.Client(uri=f"unix:/run/user/1000/podman/io.podman/io.podman") as client:
+with podman.Client(uri=f"unix:/run/user/1000/podman/io.podman") as client:
     try:
         p = client
     except:
