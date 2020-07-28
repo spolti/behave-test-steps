@@ -96,10 +96,10 @@ class Container(object):
         self._create_container(**kwargs)
         self.logging.debug("Starting container '%s'..." % self.container.get('id'))
         # d.start(container=self.container)
-        logging.info("AHAHAHAHAHAHA")
+        logging.info("HANGS HERE")
         self.container.start()
         #p.containers.get(self.container.get('id')).start()
-        logging.info("UhHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")
+        logging.info("DIDN'T HANG YEY!")
         self.running = True
         # self.ip_address = self.inspect()['NetworkSettings']['IPAddress']
         self.ip_address = self.inspect()._asdict()['networksettings']['ipaddress']
